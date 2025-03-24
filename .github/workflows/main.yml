@@ -1,26 +1,33 @@
 name: Sync to Hugging Face Space
+
 on:
   push:
-    branches: [main]
+    branches: [main]  # Runs when pushing to main branch
 
-  # to run this workflow manually from the Actions tab 
-  workflow_dispatch:
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
   sync-to-hub:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          lfs: false
-          
-      - name: Ignore large files
-        run : git filter-branch --index-filter 'git rm -rf --cached --ignore-unmatch "Automated Code"' HEAD
 
-      - name: Push to hub
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN_BLOG_AI }}
-        run: git push --force https://neuralgeekroot:$HF_TOKEN@huggingface.co/spaces/neuralgeekroot/AutomatedCodeReview main
-       
-         
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # Full history
+        lfs: false
+
+    - name: Ignore Large Files
+      run: |
+        export FILTER_BRANCH_SQUELCH_WARNING=1
+        git filter-branch --force --index-filter 'git rm -rf --cached --ignore-unmatch "Automated Code"' --prune-empty --tag-name-filter cat -- --all
+
+    - name: Set Remote URL with Hugging Face Token
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN_BLOG_AI }}
+      run: |
+        git remote set-url origin https://neuralgeekroot:${HF_TOKEN}@huggingface.co/spaces/neuralgeekroot/AutomatedCodeReview.git
+
+    - name: Push to Hugging Face Space
+      run: |
+        git push origin main --force
