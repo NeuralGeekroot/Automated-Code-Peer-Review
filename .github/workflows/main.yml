@@ -16,10 +16,10 @@ jobs:
           lfs: false
           
       - name: Ignore large files
-        run : git filter-branch --index-filter 'git rm -rf --cached --ignore-unmatch "BlogAssistant"' HEAD
+        run : git filter-branch --index-filter 'git rm -rf --cached --ignore-unmatch "AI CodeAutomated"' HEAD
 
       - name: Push to hub
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN_BLOG_AI }}
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: git push --force https://neuralgeekroot:$HF_TOKEN@huggingface.co/spaces/neuralgeekroot/AutomatedCodeReview main
        
